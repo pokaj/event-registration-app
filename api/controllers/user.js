@@ -97,24 +97,29 @@ exports.updatepassword = async (req, res) => {
     const currentpassword = req.body.currentpassword;
     const newpassword = req.body.newpassword;
     const user = await User.find({email:email});
-    await bcrypt.compare(currentpassword, user[0].password, async (error, results) =>{
-        if(error){
-            res.status(500).json({status:false, message:'something went wrong'});
-            console.log(error);
-        }
-        if(results){
-            await bcrypt.hash(newpassword, 10, async (error, hash)=>{
-                if(error){
-                    res.status(500).json({status:false, message:'something went wrong'});
-                    console.log(error);
-                }else{
-                    await User.findOneAndUpdate({_id:user[0]._id}, {$set:{password:hash}});
-                    res.status(200).json({status:true, message:'You have successfully changed your password.'});
-                }
-            });
-        }
-        else{
-            res.status(500).json({status:false, message:'You entered a wrong password.'});
-        }
-    })
+    try {
+        await bcrypt.compare(currentpassword, user[0].password, async (error, results) =>{
+            if(error){
+                res.status(500).json({status:false, message:'something went wrong'});
+                console.log(error);
+            }
+            if(results){
+                await bcrypt.hash(newpassword, 10, async (error, hash)=>{
+                    if(error){
+                        res.status(500).json({status:false, message:'something went wrong'});
+                        console.log(error);
+                    }else{
+                        await User.findOneAndUpdate({_id:user[0]._id}, {$set:{password:hash}});
+                        res.status(200).json({status:true, message:'You have successfully changed your password.'});
+                    }
+                });
+            }
+            else{
+                res.status(200).json({status:false, message:'You entered a wrong current password.'});
+            }
+        });  
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({status:false, error:error})
+    }
 }
