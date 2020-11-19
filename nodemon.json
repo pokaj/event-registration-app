@@ -1,0 +1,8 @@
+{
+    "env":{
+        "MONGO_ATLAS_PW":"P@$$w0rd!",
+        "MONGO_ATLAS_DB":"eventsdb",
+        "MONGO_ATLAS_USER":"philip",
+        "JWT_KEY":"secret"
+    }
+}

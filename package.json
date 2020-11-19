@@ -1,0 +1,31 @@
+{
+  "name": "events-app",
+  "version": "1.0.0",
+  "description": "An application that allows users to register for events",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "keywords": [
+    "node-api",
+    "restapi",
+    "events-app"
+  ],
+  "author": "Philip Owusu-Afriyie",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.0.0",
+    "body-parser": "^1.19.0",
+    "collect": "^0.3.5",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.10.7",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  }
+}
