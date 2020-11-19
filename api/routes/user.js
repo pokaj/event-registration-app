@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer'); //Middleware for handling multipart/form-data. Used for handling image uploads.
 const UserController = require('../controllers/user');
+const checkAuth = require('../middleware/check-auth');
 
 const storage = multer.diskStorage({
     destination:function(req, file, cb){
@@ -32,6 +33,9 @@ router.post('/signup', upload.single('picture'), UserController.signup);
 
 // Route to login
 router.post('/login', UserController.login);
+
+//Routeto change password
+router.post('/updatepassword', checkAuth, UserController.updatepassword);
 
 
 

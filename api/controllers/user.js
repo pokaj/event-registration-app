@@ -11,7 +11,7 @@ const jwt = require('jsonwebtoken'); // Generating tokens for logged in users
 // Route: http://localhost:3000/signup/
 // If succcessful, returns boolean true with a message and a status code of 201.
 // If unsuccessful, return false with an error messsage with a status code of 500.
-exports.signup = (req, res, next)=>{
+exports.signup = (req, res)=>{
     User.find({email: req.body.email})
     .exec()
     .then(user=>{
@@ -58,7 +58,7 @@ exports.signup = (req, res, next)=>{
 // Parameters: {email, password}
 // If succcessful, returns token for user, boolean true with a message and a status code of 200.
 // If unsuccessful, return false with an error messsage with a status code of 500.
-exports.login = (req, res, next)=>{
+exports.login = (req, res)=>{
     User.find({email:req.body.email})
     .exec()
     .then(user=>{
@@ -88,4 +88,33 @@ exports.login = (req, res, next)=>{
         console.log(error);
         res.status(500).json({status:false, error:error});
     });
+}
+
+
+
+exports.updatepassword = async (req, res) => {
+    const email = req.body.email;
+    const currentpassword = req.body.currentpassword;
+    const newpassword = req.body.newpassword;
+    const user = await User.find({email:email});
+    await bcrypt.compare(currentpassword, user[0].password, async (error, results) =>{
+        if(error){
+            res.status(500).json({status:false, message:'something went wrong'});
+            console.log(error);
+        }
+        if(results){
+            await bcrypt.hash(newpassword, 10, async (error, hash)=>{
+                if(error){
+                    res.status(500).json({status:false, message:'something went wrong'});
+                    console.log(error);
+                }else{
+                    await User.findOneAndUpdate({_id:user[0]._id}, {$set:{password:hash}});
+                    res.status(200).json({status:true, message:'You have successfully changed your password.'});
+                }
+            });
+        }
+        else{
+            res.status(500).json({status:false, message:'You entered a wrong password.'});
+        }
+    })
 }
