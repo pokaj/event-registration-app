@@ -35,7 +35,10 @@ router.post('/addevent', checkAuth, upload.single('image'), AdminController.adde
 router.patch('/editevent/:event_id', checkAuth, AdminController.editevent)
 
 // Admin route to delete an event
-router.delete('/delete_event/:event_id', checkAuth, AdminController.delete_event);
+router.post('/delete_event', checkAuth, AdminController.delete_event);
+
+// Admin route to get details on events and users 
+router.post('/getdetails', AdminController.getdetails);
 
 
 // Export the router

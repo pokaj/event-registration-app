@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
-const Event = require('../models/event');
 const jwt = require('jsonwebtoken');
+const Event = require('../models/event');
+const User = require('../models/user');
+
 
 // DOCUMENTATION
 // This function is used by the admin of the system to create an event
@@ -101,6 +103,22 @@ exports.editevent = (req, res, next)=>{
 
 }
 
+exports.getdetails = async (req, res) => {
+    try {
+        const token = req.headers.authorization.split(" ")[1];
+        const decoded = jwt.verify(token, process.env.JWT_KEY);
+        if(decoded.isadmin === false){
+            return res.status(500).json({message: 'You are no authorized to perform this action'});
+        }
+        const users = await User.find({});
+        const events = await Event.find({});
+        return res.status(200).json({users: users, events: events});
+    } catch (error) {
+        return res.status(500).json(error);
+    }
+}
+
+
 
 
 // DOCUMENTATION
@@ -111,36 +129,25 @@ exports.editevent = (req, res, next)=>{
 // The function first checks whether the user is authenticated and whether the use is an admin(delete_event route)
 // If succcessful, returns route to create am event, boolean true with a message and a status code of 200.
 // If unsuccessful, return false with an error messsage with a status code of 500.
-exports.delete_event = (req, res, next)=>{
+exports.delete_event = async (req, res, next)=>{
     const token = req.headers.authorization.split(" ")[1];
     const decoded = jwt.verify(token, process.env.JWT_KEY);
     if(decoded.isadmin === false){
         return res.status(500).json({message:'You are not authorized to perform this action.'});
     }else{
-        const _id = req.params.event_id;
-        Event.remove({_id:_id})
-        .exec()
-        .then(result=>{
-            res.status(200).json({
-                message:'Event Deleted',
-                request:{
-                    type:'POST',
-                    description:'Create new event',
-                    url:'http://localhost:4000/events/',
-                    body:{
-                        title:'String', 
-                        venue:'Number', 
-                        date:'Date', 
-                        speaker:'String', 
-                        tagline:'String', 
-                        room_capacity:'Number', 
-                        image:'Image'}
-                }
-            });
-        })
-        .catch(error=>{
+        try {
+            const _id = req.body.event_id;
+            const event = await Event.find({_id:_id});
+            if(event[0].current_seat_number > 0 ){
+                return res.status(200).json({status: false, message: 'People have registered for this event. Sorry, you cannot delete.'});
+            }else{
+                await Event.deleteOne({_id:_id});
+                return res.status(200).json({status: true, message: 'Event successfully deleted.'});
+            }
+        } catch (error) {
             console.log(error);
-            res.status(500).json({error:error});
-        });
+            return res.status(500).json({status: false, message: 'An error occurred while trying to delete this event'});
+        }
     }
 }
+
