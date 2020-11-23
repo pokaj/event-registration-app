@@ -24,7 +24,7 @@ exports.addevent = (req, res, next)=>{
             if(event.length >= 1){
                 res.status(409).json({status:false, message:'This event already exists'});
             }else{
-                const user = new Event({
+                const newEvent = new Event({
                     _id: new mongoose.Types.ObjectId(),
                     title: req.body.title,
                     venue: req.body.venue,
@@ -34,7 +34,7 @@ exports.addevent = (req, res, next)=>{
                     room_capacity: req.body.room_capacity, 
                     image:req.file.path
                 });
-                user.save()
+                newEvent.save()
                 .then(result=>{
                     res.status(201).json({
                         status:true,
